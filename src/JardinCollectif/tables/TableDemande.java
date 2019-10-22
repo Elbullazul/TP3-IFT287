@@ -41,7 +41,7 @@ public class TableDemande extends SQLTable {
 	}
 
 	@Override
-	public Boolean create() {
+	public Boolean insert() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -54,6 +54,12 @@ public class TableDemande extends SQLTable {
 
 	@Override
 	public Boolean destroy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Boolean fetch() {
 		// TODO Auto-generated method stub
 		return null;
 	}

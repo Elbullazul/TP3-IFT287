@@ -40,7 +40,7 @@ import java.sql.*;
  */
 public class JardinCollectif
 {
-    private static Connexion cx;
+    public static Connexion cx;
 
     /**
      * @param args
@@ -98,13 +98,30 @@ public class JardinCollectif
                     String param1 = readString(tokenizer);
                     Date param2 = readDate(tokenizer);
                     int param3 = readInt(tokenizer);
+                    
                     // Appel de la methode des gestionnaires qui traite la transaction specifique
                 }
-                else if (command.equals("commande2"))
+                else if (command.equals("inscrireMembre"))
                 {
                     // Lire les parametres ici et appeler la bonne methode
                     // de traitement pour la transaction
+                	String param1 = readString(tokenizer);
+                	String param2 = readString(tokenizer);
+                	String param3 = readString(tokenizer);
+                	Integer param4 = readInt(tokenizer);
+                	
+                	Controller.inscrireMembre(param1, param2, param3, param4);                	
                 }
+                else if (command.equals("supprimerMembre"))
+                {
+                	Integer param1 = readInt(tokenizer);
+                	
+                	Controller.supprimerMembre(param1);	
+                }
+                else if (command.equals("afficherMembres"))
+                {
+                	Controller.afficherMembres();
+                }                
                 else
                 {
                     System.out.println(" : Transaction non reconnue");
