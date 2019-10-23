@@ -1,9 +1,17 @@
 package JardinCollectif.tables;
 
-public class TableAttributions extends SQLTable {
+public class TableAttribution extends SQLTable {
 	private Integer idMembre;
 	private String nomLot;
 
+	public TableAttribution() {
+	}
+	
+	public TableAttribution(String nomLot, Integer noMembre) {
+		this.nomLot = nomLot;
+		this.idMembre = noMembre;
+	}
+	
 	public Integer getIdMembre() {
 		return idMembre;
 	}
@@ -18,18 +26,6 @@ public class TableAttributions extends SQLTable {
 
 	public void setNomLot(String nomLot) {
 		this.nomLot = nomLot;
-	}
-
-	public static Boolean addAttribution(TableMembre tm, TableLot tl) {
-		// TODO: implémenter l'envoi des données à la BD
-
-		return false;
-	}
-
-	public static Boolean delAttribution(TableAttributions ta) {
-		// TODO: implement
-
-		return false;
 	}
 
 	@Override

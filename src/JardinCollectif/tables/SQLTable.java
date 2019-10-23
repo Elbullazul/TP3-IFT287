@@ -1,11 +1,5 @@
 package JardinCollectif.tables;
 
-import JardinCollectif.Connexion;
-
-/*
- * Forcer certaines actions dans la BD
- */
-
 public abstract class SQLTable {
 	public abstract Boolean insert();
 

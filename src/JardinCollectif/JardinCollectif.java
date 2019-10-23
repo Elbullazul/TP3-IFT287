@@ -38,44 +38,38 @@ import java.sql.*;
  *     transaction
  * </pre>
  */
-public class JardinCollectif
-{
-    public static Connexion cx;
+public class JardinCollectif {
+	public static Connexion cx;
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) throws Exception
-    {
-        if (args.length < 4)
-        {
-            System.out.println("Usage: java JardinCollectif.JardinCollectif <serveur> <bd> <user> <password> [<fichier-transactions>]");
-            return;
-        }
-        
-        cx = null;
-        
-        try
-        {
-            // Il est possible que vous ayez à déplacer la connexion ailleurs.
-            // N'hésitez pas à le faire!
-            cx = new Connexion(args[0], args[1], args[2], args[3]);
-            BufferedReader reader = ouvrirFichier(args);
-            String transaction = lireTransaction(reader);
-            while (!finTransaction(transaction))
-            {
-                executerTransaction(transaction);
-                transaction = lireTransaction(reader);
-            }
-        }
-        finally
-        {
-            if (cx != null)
-                cx.fermer();
-        }
-    }
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) throws Exception {
+		if (args.length < 4) {
+			System.out.println(
+					"Usage: java JardinCollectif.JardinCollectif <serveur> <bd> <user> <password> [<fichier-transactions>]");
+			return;
+		}
 
-    /**
+		cx = null;
+
+		try {
+			// Il est possible que vous ayez à déplacer la connexion ailleurs.
+			// N'hésitez pas à le faire!
+			cx = new Connexion(args[0], args[1], args[2], args[3]);
+			BufferedReader reader = ouvrirFichier(args);
+			String transaction = lireTransaction(reader);
+			while (!finTransaction(transaction)) {
+				executerTransaction(transaction);
+				transaction = lireTransaction(reader);
+			}
+		} finally {
+			if (cx != null)
+				cx.fermer();
+		}
+	}
+
+	/**
      * Decodage et traitement d'une transaction
      */
     static void executerTransaction(String transaction) throws Exception, IFT287Exception
@@ -101,6 +95,7 @@ public class JardinCollectif
                     
                     // Appel de la methode des gestionnaires qui traite la transaction specifique
                 }
+                // membres
                 else if (command.equals("inscrireMembre"))
                 {
                     // Lire les parametres ici et appeler la bonne methode
@@ -121,7 +116,81 @@ public class JardinCollectif
                 else if (command.equals("afficherMembres"))
                 {
                 	Controller.afficherMembres();
-                }                
+                }
+                else if (command.equals("promouvoirAdministrateur")) {
+                	Integer param1 = readInt(tokenizer);
+                	
+                	Controller.promouvoirAdministrateur(param1);
+                }
+                // lots
+                else if (command.equals("accepterDemande")) {
+                	String param1 = readString(tokenizer);
+                	Integer param2 = readInt(tokenizer);
+                	
+                	Controller.accepterDemande(param1, param2);
+                }
+                else if (command.equals("refuserDemande")) {
+                	String param1 = readString(tokenizer);
+                	Integer param2 = readInt(tokenizer);
+                	
+                	Controller.refuserDemande(param1, param2);
+                }
+                else if (command.equals("ajouterLot")) {
+                	String param1 = readString(tokenizer);
+                	Integer param2 = readInt(tokenizer);
+                	
+                	Controller.ajouterLot(param1, param2);
+                }
+                else if (command.equals("rejoindreLot")) {
+                	String param1 = readString(tokenizer);
+                	Integer param2 = readInt(tokenizer);
+                	
+                	Controller.rejoindreLot(param1, param2);
+                }
+                else if (command.equals("supprimerLot")) {
+                	String param1 = readString(tokenizer);
+                	
+                	Controller.supprimerLot(param1);
+                }
+                else if (command.equals("afficherLots"))
+                {
+                	Controller.afficherLots();
+                }
+                else if (command.equals("ajouterPlante")) {
+                	String param1 = readString(tokenizer);
+                	Integer param2 = readInt(tokenizer);
+                	
+                	Controller.ajouterPlante(param1, param2);
+                }
+                
+                else if (command.equals("ajouterPlante")) {
+                	String param1 = readString(tokenizer);
+                	String param2 = readString(tokenizer);
+                	Integer param3 = readInt(tokenizer);
+                	Integer param4 = readInt(tokenizer);
+                	
+                	Controller.planterPlante(param1, param2, param3, param4);
+                }
+                else if (command.equals("recolterPlante")) {
+                	String param1 = readString(tokenizer);
+                	String param2 = readString(tokenizer);
+                	Integer param3 = readInt(tokenizer);
+                	
+                	Controller.recolterPlante(param1, param2, param3);
+                }
+                else if (command.equals("afficherPlantesLot")) {
+                	String param1 = readString(tokenizer);
+                	
+                	Controller.afficherPlantesLot(param1);
+                }
+                else if (command.equals("retirerPlante")) {
+                	String param1 = readString(tokenizer);
+                	
+                	Controller.retirerPlante(param1);
+                }
+                else if (command.equals("afficherPlantes")) {
+                	Controller.afficherPlantes();
+                }
                 else
                 {
                     System.out.println(" : Transaction non reconnue");
@@ -138,87 +207,70 @@ public class JardinCollectif
         }
     }
 
-    
-    // ****************************************************************
-    // *   Les methodes suivantes n'ont pas besoin d'etre modifiees   *
-    // ****************************************************************
+	// ****************************************************************
+	// * Les methodes suivantes n'ont pas besoin d'etre modifiees *
+	// ****************************************************************
 
-    /**
-     * Ouvre le fichier de transaction, ou lit à partir de System.in
-     */
-    public static BufferedReader ouvrirFichier(String[] args) throws FileNotFoundException
-    {
-        if (args.length < 5)
-            // Lecture au clavier
-            return new BufferedReader(new InputStreamReader(System.in));
-        else
-            // Lecture dans le fichier passe en parametre
-            return new BufferedReader(new InputStreamReader(new FileInputStream(args[4])));
-    }
+	/**
+	 * Ouvre le fichier de transaction, ou lit à partir de System.in
+	 */
+	public static BufferedReader ouvrirFichier(String[] args) throws FileNotFoundException {
+		if (args.length < 5)
+			// Lecture au clavier
+			return new BufferedReader(new InputStreamReader(System.in));
+		else
+			// Lecture dans le fichier passe en parametre
+			return new BufferedReader(new InputStreamReader(new FileInputStream(args[4])));
+	}
 
-    /**
-     * Lecture d'une transaction
-     */
-    static String lireTransaction(BufferedReader reader) throws IOException
-    {
-        return reader.readLine();
-    }
+	/**
+	 * Lecture d'une transaction
+	 */
+	static String lireTransaction(BufferedReader reader) throws IOException {
+		return reader.readLine();
+	}
 
-    /**
-     * Verifie si la fin du traitement des transactions est atteinte.
-     */
-    static boolean finTransaction(String transaction)
-    {
-        // fin de fichier atteinte
-        return (transaction == null || transaction.equals("quitter"));
-    }
+	/**
+	 * Verifie si la fin du traitement des transactions est atteinte.
+	 */
+	static boolean finTransaction(String transaction) {
+		// fin de fichier atteinte
+		return (transaction == null || transaction.equals("quitter"));
+	}
 
-    /** Lecture d'une chaine de caracteres de la transaction entree a l'ecran */
-    static String readString(StringTokenizer tokenizer) throws Exception
-    {
-        if (tokenizer.hasMoreElements())
-            return tokenizer.nextToken();
-        else
-            throw new Exception("Autre parametre attendu");
-    }
+	/** Lecture d'une chaine de caracteres de la transaction entree a l'ecran */
+	static String readString(StringTokenizer tokenizer) throws Exception {
+		if (tokenizer.hasMoreElements())
+			return tokenizer.nextToken();
+		else
+			throw new Exception("Autre parametre attendu");
+	}
 
-    /**
-     * Lecture d'un int java de la transaction entree a l'ecran
-     */
-    static int readInt(StringTokenizer tokenizer) throws Exception
-    {
-        if (tokenizer.hasMoreElements())
-        {
-            String token = tokenizer.nextToken();
-            try
-            {
-                return Integer.valueOf(token).intValue();
-            }
-            catch (NumberFormatException e)
-            {
-                throw new Exception("Nombre attendu a la place de \"" + token + "\"");
-            }
-        }
-        else
-            throw new Exception("Autre parametre attendu");
-    }
+	/**
+	 * Lecture d'un int java de la transaction entree a l'ecran
+	 */
+	static int readInt(StringTokenizer tokenizer) throws Exception {
+		if (tokenizer.hasMoreElements()) {
+			String token = tokenizer.nextToken();
+			try {
+				return Integer.valueOf(token).intValue();
+			} catch (NumberFormatException e) {
+				throw new Exception("Nombre attendu a la place de \"" + token + "\"");
+			}
+		} else
+			throw new Exception("Autre parametre attendu");
+	}
 
-    static Date readDate(StringTokenizer tokenizer) throws Exception
-    {
-        if (tokenizer.hasMoreElements())
-        {
-            String token = tokenizer.nextToken();
-            try
-            {
-                return Date.valueOf(token);
-            }
-            catch (IllegalArgumentException e)
-            {
-                throw new Exception("Date dans un format invalide - \"" + token + "\"");
-            }
-        }
-        else
-            throw new Exception("Autre parametre attendu");
-    }
+	static Date readDate(StringTokenizer tokenizer) throws Exception {
+		if (tokenizer.hasMoreElements()) {
+			String token = tokenizer.nextToken();
+			try {
+				return Date.valueOf(token);
+			} catch (IllegalArgumentException e) {
+				throw new Exception("Date dans un format invalide - \"" + token + "\"");
+			}
+		} else
+			throw new Exception("Autre parametre attendu");
+	}
 
 }

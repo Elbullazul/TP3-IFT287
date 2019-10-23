@@ -6,12 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import JardinCollectif.Connexion;
-import JardinCollectif.Controller;
 import JardinCollectif.JardinCollectif;
 
 public class TableMembre extends SQLTable {
-	private Integer id = null;
+	private Integer id;
 	private String nom;
 	private String prenom;
 	private String password;
@@ -73,11 +71,6 @@ public class TableMembre extends SQLTable {
 	}
 
 	// management
-	public Boolean promote(TableMembre tm) {
-		this.isAdmin = true;
-		return update();
-	}
-
 	public String toString() {
 		String s = "";
 		if (this.isAdmin)
@@ -97,7 +90,7 @@ public class TableMembre extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("SELECT * FROM Membres");
+			ps = cnn.prepareStatement("SELECT * FROM Membres ORDER BY id");
 
 			ResultSet rs = ps.executeQuery();
 
@@ -150,8 +143,28 @@ public class TableMembre extends SQLTable {
 
 	@Override
 	public Boolean update() {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("UPDATE Membres SET prenom=?, nom=?, password=?, isAdmin=? WHERE id=?");
+			ps.setString(1, this.prenom);
+			ps.setString(2, this.nom);
+			ps.setString(3, this.password);
+			ps.setBoolean(4, this.isAdmin);
+			
+			ps.setInt(5, this.id);
+
+			if (ps.executeUpdate() == 0)
+				throw new SQLException("Update failed");
+
+			cnn.commit();
+		} catch (SQLException e) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -161,7 +174,7 @@ public class TableMembre extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("DELETE FROM Membres WHERE id = ?");
+			ps = cnn.prepareStatement("DELETE FROM Membres WHERE id=?");
 			ps.setInt(1, this.id);
 			
 			if (ps.executeUpdate() == 0)

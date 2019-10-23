@@ -2,7 +2,11 @@ package JardinCollectif;
 
 import java.sql.Connection;
 
+import JardinCollectif.tables.TableAttribution;
+import JardinCollectif.tables.TableLot;
 import JardinCollectif.tables.TableMembre;
+import JardinCollectif.tables.TablePlante;
+
 import java.util.ArrayList;
 
 public class Controller {
@@ -15,11 +19,11 @@ public class Controller {
 	public static void print(String chain) {
 		System.out.println(chain);
 	}
-	
+
 	public static void print(Integer num) {
 		System.out.println(num.toString());
 	}
-	
+
 	public static void print(Boolean val) {
 		System.out.println(val.toString());
 	}
@@ -28,11 +32,11 @@ public class Controller {
 		newLine();
 		print("Database error. Try again");
 	}
-	
+
 	public static void newLine() {
 		print("");
 	}
-	
+
 	/*
 	 * Membres
 	 */
@@ -44,10 +48,10 @@ public class Controller {
 		else
 			showError();
 	}
-	
+
 	public static void supprimerMembre(Integer noMembre) {
 		TableMembre tbl_membre = new TableMembre(noMembre);
-		
+
 		if (tbl_membre.destroy())
 			print("Membre " + noMembre + " détruit");
 		else
@@ -56,7 +60,7 @@ public class Controller {
 
 	public static void afficherMembres() {
 		ArrayList<TableMembre> tl = TableMembre.fetchAll();
-		
+
 		newLine();
 		for (TableMembre tp : tl) {
 			print(tp.toString());
@@ -65,7 +69,20 @@ public class Controller {
 
 	// ADMIN members
 	public static void promouvoirAdministrateur(Integer noMembre) {
-		// TODO: build placeholder object and pass to TableMembre.promote(args[])
+		TableMembre tbl_membre = new TableMembre(noMembre);
+
+		// vérifier si l'utilisateur existe
+		if (tbl_membre.fetch()) {
+			tbl_membre.setIsAdmin(true);
+
+			if (tbl_membre.update())
+				print("Membre " + noMembre.toString() + " promu au rôle d'administrateur");
+			else
+				showError();
+
+		} else {
+			print("Le membre " + noMembre.toString() + " n'existe pas");
+		}
 	}
 
 	public static void accepterDemande(String nomLot, Integer noMembre) {
@@ -81,48 +98,97 @@ public class Controller {
 	 * Lots
 	 */
 	public static void ajouterLot(String nomLot, Integer maxCollabs) {
-		// TODO: créer l'objet puis le sauvegarder
+		TableLot tbl_lot = new TableLot(nomLot, maxCollabs);
+
+		if (tbl_lot.insert()) {
+			newLine();
+			print("Le lot " + nomLot + " ajouté");
+		} else
+			showError();
 	}
 
 	public static void rejoindreLot(String nomLot, Integer noMembre) {
-		// TODO: update lot in tbl_attributions
+		TableLot tbl_lot = new TableLot(nomLot);
+		TableMembre tbl_membre = new TableMembre(noMembre);
+		TableAttribution tbl_attribution = new TableAttribution(nomLot, noMembre);
+
+		newLine();
+		
+		if (tbl_lot.fetch()) {
+			if (tbl_membre.fetch()) {
+				tbl_attribution.insert();
+			} else
+				print("Le membre " + noMembre + " n'existe pas");
+		} else
+			print("Le lot " + nomLot + " n'existe pas");
 	}
 
 	public static void supprimerLot(String nomLot) {
-		// TODO: sipprimer lot in tbl_attributes
+		TableLot tbl_lot = new TableLot(nomLot);
+
+		// TODO: vérifier qu'il n'y a personne ni aucune plante sur le lot
+		if (tbl_lot.destroy()) {
+			newLine();
+			print("Le lot " + nomLot + " a été détruit");
+		} else
+			showError();
 	}
 
 	public static void afficherLots() {
-		// TODO: select * from tbl_lots
-	}
+		ArrayList<TableLot> tl = TableLot.fetchAll();
 
-	/*
-	 * Culture
-	 */
-	public static void ajouterPlante(String nomPlante, Integer nbJours) {
-		// TODO: create and save object
-	}
-
-	public static void planterPlante(String nomPlante, String nomLot, Integer noMembre, Integer nbExemplaires) {
-		// TODO: Create tuple and sve it to db
-	}
-
-	public static void recolterPlante(String nomPlante, String nomLot, Integer noMembre) {
-		// TODO: Remove plant instnces in tbl_culture
-	}
-
-	public static void afficherPlantesLot(String nomLot) {
-		// TODO: Select * from tbl_culture where nomlot = nomlot
+		newLine();
+		for (TableLot tp : tl) {
+			print(tp.toString());
+		}
 	}
 
 	/*
 	 * Plante
 	 */
+	public static void ajouterPlante(String nomPlante, Integer nbJours) {
+		TablePlante tbl_plante = new TablePlante(nomPlante, nbJours);
+
+		if (tbl_plante.insert()) {
+			newLine();
+			print("Plante " + nomPlante + " ajoutée");
+		} else
+			showError();
+	}
+
 	public static void retirerPlante(String nomPlante) {
-		// TODO: remove from tbl_plantes if not found in tbl_cultures
+		TablePlante tbl_plante = new TablePlante(nomPlante);
+
+		// vérifier qu'il n'en a pas de plantée
+		
+		if (tbl_plante.destroy()) {
+			newLine();
+			print("Plante " + nomPlante + " supprimée");
+		} else
+			showError();
 	}
 
 	public static void afficherPlantes() {
-		// TODO: select * from tbl_plantes
+		ArrayList<TablePlante> tl = TablePlante.fetchAll();
+
+		newLine();
+		for (TablePlante tp : tl) {
+			print(tp.toString());
+		}
+	}
+
+	/*
+	 * Culture
+	 */
+	public static void planterPlante(String nomPlante, String nomLot, Integer noMembre, Integer nbExemplaires) {
+		// TODO: Create tuple and save it to db
+	}
+
+	public static void recolterPlante(String nomPlante, String nomLot, Integer noMembre) {
+		// TODO: Remove plant instances in tbl_culture
+	}
+
+	public static void afficherPlantesLot(String nomLot) {
+		// TODO: Select * from tbl_culture where nomlot = nomlot
 	}
 }
