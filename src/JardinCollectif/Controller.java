@@ -3,6 +3,8 @@ package JardinCollectif;
 import java.sql.Connection;
 
 import JardinCollectif.tables.TableAttribution;
+import JardinCollectif.tables.TableCulture;
+import JardinCollectif.tables.TableDemande;
 import JardinCollectif.tables.TableLot;
 import JardinCollectif.tables.TableMembre;
 import JardinCollectif.tables.TablePlante;
@@ -51,11 +53,18 @@ public class Controller {
 
 	public static void supprimerMembre(Integer noMembre) {
 		TableMembre tbl_membre = new TableMembre(noMembre);
+		TableDemande tbl_demande = new TableDemande(noMembre);
+		TableAttribution tbl_attribution = new TableAttribution(noMembre);
 
-		if (tbl_membre.destroy())
-			print("Membre " + noMembre + " détruit");
-		else
-			showError();
+		newLine();
+		
+		if (tbl_attribution.notLast()) {
+			if (tbl_attribution.destroyMembre() && tbl_demande.destroyMembre() && tbl_membre.destroy())
+				print("Membre " + noMembre + " détruit");
+			else
+				showError();
+		} else
+			print("Le membre est le dernier sur le lot. Supprimer le lot ou ajoutez-y un membre puis réessayez");
 	}
 
 	public static void afficherMembres() {
@@ -86,12 +95,38 @@ public class Controller {
 	}
 
 	public static void accepterDemande(String nomLot, Integer noMembre) {
-		// TODO: update and save fetched object
+		TableDemande tbl_demande = new TableDemande(nomLot, noMembre);
+
+		if (tbl_demande.fetch()) {
+			TableAttribution tbl_attribution = new TableAttribution(nomLot, noMembre);
+
+			if (tbl_attribution.insert()) {
+				tbl_demande.setStatus(TableDemande.STATUS_APPROVED);
+
+				if (tbl_demande.update()) {
+					newLine();
+					print("Demande acceptée");
+				} else
+					showError();
+			} else
+				showError();
+		} else
+			showError();
 	}
 
 	public static void refuserDemande(String nomLot, Integer noMembre) {
-		// TODO: update and save fetched object
-		// REMIDER: select request with no status
+		TableDemande tbl_demande = new TableDemande(nomLot, noMembre);
+
+		if (tbl_demande.fetch()) {
+			tbl_demande.setStatus(TableDemande.STATUS_DENIED);
+
+			if (tbl_demande.update())
+				print("Demande refusée");
+			else
+				showError();
+
+		} else
+			showError();
 	}
 
 	/*
@@ -110,13 +145,16 @@ public class Controller {
 	public static void rejoindreLot(String nomLot, Integer noMembre) {
 		TableLot tbl_lot = new TableLot(nomLot);
 		TableMembre tbl_membre = new TableMembre(noMembre);
-		TableAttribution tbl_attribution = new TableAttribution(nomLot, noMembre);
+		TableDemande tbl_demande = new TableDemande(nomLot, noMembre);
 
 		newLine();
-		
+
 		if (tbl_lot.fetch()) {
 			if (tbl_membre.fetch()) {
-				tbl_attribution.insert();
+				if (tbl_demande.insert()) {
+					print("Demande soumise");
+				} else
+					showError();
 			} else
 				print("Le membre " + noMembre + " n'existe pas");
 		} else
@@ -125,13 +163,18 @@ public class Controller {
 
 	public static void supprimerLot(String nomLot) {
 		TableLot tbl_lot = new TableLot(nomLot);
+		TableCulture tbl_culture = new TableCulture(nomLot, TableCulture.NOM_LOT);
+		TableAttribution tbl_attribution = new TableAttribution(nomLot);
 
-		// TODO: vérifier qu'il n'y a personne ni aucune plante sur le lot
-		if (tbl_lot.destroy()) {
-			newLine();
-			print("Le lot " + nomLot + " a été détruit");
+		// TODO: vérifier qu'il n'y a aucune plante sur le lot
+		if (!tbl_culture.existsLot()) {
+			if (tbl_lot.destroy()) {
+				newLine();
+				print("Le lot " + nomLot + " a été détruit");
+			} else
+				showError();
 		} else
-			showError();
+			print("Des plantes sont encores plantées sur le lot. Transaction annulée");
 	}
 
 	public static void afficherLots() {
@@ -159,8 +202,8 @@ public class Controller {
 	public static void retirerPlante(String nomPlante) {
 		TablePlante tbl_plante = new TablePlante(nomPlante);
 
-		// vérifier qu'il n'en a pas de plantée
-		
+		// TODO: vérifier qu'il n'en a pas de plantée
+
 		if (tbl_plante.destroy()) {
 			newLine();
 			print("Plante " + nomPlante + " supprimée");
@@ -181,14 +224,39 @@ public class Controller {
 	 * Culture
 	 */
 	public static void planterPlante(String nomPlante, String nomLot, Integer noMembre, Integer nbExemplaires) {
-		// TODO: Create tuple and save it to db
+		TableLot tbl_lot = new TableLot(nomLot);
+		TableMembre tbl_membre = new TableMembre(noMembre);
+		TablePlante tbl_plante = new TablePlante(nomPlante);
+		TableAttribution tbl_attribution = new TableAttribution(nomLot, noMembre);
+		
+		TableCulture tbl_culture = new TableCulture(nomLot, nomPlante, noMembre, nbExemplaires);
+		
+		newLine();
+		
+		if (tbl_membre.fetch() && tbl_lot.fetch() && tbl_plante.fetch()) {
+			if (tbl_attribution.fetch()) {
+				tbl_culture.insert();
+				print("Plantes sauvegardées");
+			} else
+				print("Membre " + noMembre + " pas autorisé dans le lot");
+			
+		} else
+			print("Des données n'existent pas sur la BD. Veuillez les créer avant de poursuivre.\n  Missing: (plante, membre, lot)");
 	}
 
 	public static void recolterPlante(String nomPlante, String nomLot, Integer noMembre) {
 		// TODO: Remove plant instances in tbl_culture
+		// Vérifier que le membre est inscrit au lot
+		// Retirer toutes les plantes prêtes
 	}
 
 	public static void afficherPlantesLot(String nomLot) {
-		// TODO: Select * from tbl_culture where nomlot = nomlot
+		TableCulture tbl_culture = new TableCulture(nomLot, TableCulture.NOM_LOT);
+		ArrayList<TableCulture> tl = tbl_culture.fetchAllLot();
+
+		newLine();
+		for (TableCulture tp : tl) {
+			print(tp.toString());
+		}
 	}
 }

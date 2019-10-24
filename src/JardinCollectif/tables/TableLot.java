@@ -147,7 +147,7 @@ public class TableLot extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("SELECT * FROM Lots WHERE name=?");
+			ps = cnn.prepareStatement("SELECT * FROM Lots WHERE nom=?");
 			ps.setString(1, this.nom);
 
 			ResultSet rs = ps.executeQuery();
