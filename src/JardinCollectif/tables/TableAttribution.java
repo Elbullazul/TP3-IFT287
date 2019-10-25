@@ -44,11 +44,12 @@ public class TableAttribution extends SQLTable {
 		this.nomLot = nomLot;
 	}
 
-	// SQL
+	@Override
 	public String toString() {
 		return "Membre " + this.idMembre.toString() + " collabore sur le lot " + this.nomLot; 
 	}
 
+	// SQL
 	public static ArrayList<TableAttribution> fetchAll() {
 		ArrayList<TableAttribution> tl = new ArrayList<TableAttribution>();
 		PreparedStatement ps;

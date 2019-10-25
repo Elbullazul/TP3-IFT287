@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import JardinCollectif.JardinCollectif;
 
 public class TableDemande extends SQLTable {
-	private Date id;
 	private Integer idMembre;
 	private String nomLot;
 	private Integer status;
@@ -34,14 +33,6 @@ public class TableDemande extends SQLTable {
 		this.nomLot = nomLot;
 		this.idMembre = idMembre;
 		this.status = STATUS_PENDING;
-	}
-	
-	public Date getId() {
-		return id;
-	}
-
-	public void setId(Date id) {
-		this.id = id;
 	}
 
 	public Integer getIdMembre() {
@@ -68,6 +59,7 @@ public class TableDemande extends SQLTable {
 		this.status = status;
 	}
 
+	@Override
 	public String toString() {
 		String s = "Demande soumise par: " + this.idMembre.toString() + " pour le lot " + this.nomLot + " Status: ";
 		

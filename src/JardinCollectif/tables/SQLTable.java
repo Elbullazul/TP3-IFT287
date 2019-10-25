@@ -8,4 +8,6 @@ public abstract class SQLTable {
 	public abstract Boolean destroy();
 
 	public abstract Boolean fetch();
+	
+	public abstract String toString();
 }

@@ -89,11 +89,12 @@ public class TableCulture extends SQLTable {
 		this.plantee = plantee;
 	}
 
-	// SQL
+	@Override
 	public String toString() {
 		return this.nbExemplaires + " " + this.nomPlante + "(s) en pousse depuis " + this.plantee.toString() + " dans " + this.nomLot + " par membre " + this.noMembre; 
 	}
 
+	// SQL
 	public static ArrayList<TableCulture> fetchAll() {
 		ArrayList<TableCulture> tl = new ArrayList<TableCulture>();
 		PreparedStatement ps;

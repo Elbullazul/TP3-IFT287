@@ -40,11 +40,12 @@ public class TableLot extends SQLTable {
 		this.max_collab = max_collab;
 	}
 
-	// SQL
+	@Override
 	public String toString() {
 		return "Lot " + this.nom + ", Nb max. membres: " + this.max_collab.toString(); 
 	}
 	
+	// SQL
 	public static ArrayList<TableLot> fetchAll() {
 		ArrayList<TableLot> tl = new ArrayList<TableLot>();
 		PreparedStatement ps;

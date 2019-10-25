@@ -40,6 +40,7 @@ public class TablePlante extends SQLTable {
 		this.duree = duree;
 	}
 
+	@Override
 	public String toString() {
 		return "Nom: " + this.nom + "     Temps pour mûrir: " + this.duree.toString() + " jours"; 
 	}

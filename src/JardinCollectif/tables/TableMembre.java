@@ -70,7 +70,7 @@ public class TableMembre extends SQLTable {
 		this.isAdmin = isAdmin;
 	}
 
-	// management
+	@Override
 	public String toString() {
 		String s = "";
 		if (this.isAdmin)
@@ -83,6 +83,7 @@ public class TableMembre extends SQLTable {
 		return s;
 	}
 
+	// SQL
 	public static ArrayList<TableMembre> fetchAll() {
 		ArrayList<TableMembre> tl = new ArrayList<TableMembre>();
 		PreparedStatement ps;
