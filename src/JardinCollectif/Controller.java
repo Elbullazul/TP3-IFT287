@@ -282,6 +282,11 @@ public class Controller {
 
 		newLine();
 		
+		if (!tbl_plante.fetch()) {
+			print("La plante n'existe pas");
+			return;
+		}
+		
 		if (!tbl_culture.existsPlante()) {
 			if (tbl_plante.destroy()) {
 				print("Plante " + nomPlante + " supprimée");
