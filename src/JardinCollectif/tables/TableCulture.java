@@ -14,7 +14,7 @@ import JardinCollectif.JardinCollectif;
 public class TableCulture extends SQLTable {
 	private String nomLot;
 	private String nomPlante;
-	private Integer noMembre;
+	private Integer idMembre;
 	private Integer nbExemplaires;
 	private Date plantee;
 	
@@ -32,19 +32,19 @@ public class TableCulture extends SQLTable {
 	}
 	
 	public TableCulture(Integer idMembre) {
-		this.noMembre = idMembre;
+		this.idMembre = idMembre;
 	}
 	
 	public TableCulture(String nomLot, String nomPlante, Integer idMembre) {
 		this.nomLot = nomLot;
 		this.nomPlante = nomPlante;
-		this.noMembre = idMembre;
+		this.idMembre = idMembre;
 	}
 	
 	public TableCulture(String nomLot, String nomPlante, Integer idMembre, Integer nbExemplaires, Date datePlantation) {
 		this.nomLot = nomLot;
 		this.nomPlante = nomPlante;
-		this.noMembre = idMembre;
+		this.idMembre = idMembre;
 		this.nbExemplaires = nbExemplaires;
 		this.plantee = datePlantation;
 	}
@@ -65,12 +65,12 @@ public class TableCulture extends SQLTable {
 		this.nomPlante = nomPlante;
 	}
 
-	public Integer getNoMembre() {
-		return noMembre;
+	public Integer getIdMembre() {
+		return idMembre;
 	}
 
-	public void setNoMembre(Integer noMembre) {
-		this.noMembre = noMembre;
+	public void setIdMembre(Integer idMembre) {
+		this.idMembre = idMembre;
 	}
 
 	public Integer getNbExemplaires() {
@@ -91,7 +91,7 @@ public class TableCulture extends SQLTable {
 
 	@Override
 	public String toString() {
-		return this.nbExemplaires + " " + this.nomPlante + "(s) en pousse depuis " + this.plantee.toString() + " dans " + this.nomLot + " par membre " + this.noMembre; 
+		return this.nbExemplaires + " " + this.nomPlante + "(s) en pousse depuis " + this.plantee.toString() + " dans " + this.nomLot + " par membre " + this.idMembre; 
 	}
 
 	// SQL
@@ -111,7 +111,7 @@ public class TableCulture extends SQLTable {
 				
 				o.setNomPlante(rs.getString(1));
 				o.setNomLot(rs.getString(2));
-				o.setNoMembre(rs.getInt(3));
+				o.setIdMembre(rs.getInt(3));
 				o.setNbExemplaires(rs.getInt(4));
 				o.setPlantee(rs.getDate(5));
 
@@ -143,7 +143,7 @@ public class TableCulture extends SQLTable {
 				
 				o.setNomPlante(rs.getString(1));
 				o.setNomLot(rs.getString(2));
-				o.setNoMembre(rs.getInt(3));
+				o.setIdMembre(rs.getInt(3));
 				o.setNbExemplaires(rs.getInt(4));
 				o.setPlantee(rs.getDate(5));
 
@@ -168,7 +168,7 @@ public class TableCulture extends SQLTable {
 			ps = cnn.prepareStatement("INSERT INTO Cultures (nomPlante, nomLot, idMembre, quantitee, plantee) VALUES(?, ?, ?, ?, ?)");
 			ps.setString(1, this.nomPlante);
 			ps.setString(2, this.nomLot);
-			ps.setInt(3, this.noMembre);
+			ps.setInt(3, this.idMembre);
 			ps.setInt(4,  this.nbExemplaires);
 			ps.setDate(5, this.plantee);
 
@@ -201,7 +201,7 @@ public class TableCulture extends SQLTable {
 			ps = cnn.prepareStatement("DELETE FROM Cultures WHERE nomLot=? AND nomPlante=? AND idMembre=? AND plantee=?");
 			ps.setString(1, this.nomLot);
 			ps.setString(2, this.nomPlante);
-			ps.setInt(3, this.noMembre);
+			ps.setInt(3, this.idMembre);
 			ps.setDate(4, this.plantee);
 
 			if (ps.executeUpdate() == 0)
@@ -262,7 +262,7 @@ public class TableCulture extends SQLTable {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
 			ps = cnn.prepareStatement("DELETE FROM Cultures WHERE idMembre=?");
-			ps.setInt(1, this.noMembre);
+			ps.setInt(1, this.idMembre);
 
 			if (ps.executeUpdate() == 0)
 				throw new SQLException("Deletion failed");
@@ -285,7 +285,7 @@ public class TableCulture extends SQLTable {
 			ps = cnn.prepareStatement("SELECT * FROM Cultures WHERE nomLot=? AND nomPlante=? AND idMembre=?");
 			ps.setString(1, this.nomLot);
 			ps.setString(2, this.nomPlante);
-			ps.setInt(3, this.noMembre);
+			ps.setInt(3, this.idMembre);
 
 			ResultSet rs = ps.executeQuery();
 
@@ -363,7 +363,7 @@ public class TableCulture extends SQLTable {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
 			ps = cnn.prepareStatement("SELECT * FROM Cultures WHERE idMembre=?");
-			ps.setInt(1, this.noMembre);
+			ps.setInt(1, this.idMembre);
 			
 			ResultSet rs = ps.executeQuery();
 
@@ -400,7 +400,7 @@ public class TableCulture extends SQLTable {
 			
 			ps.setString(1, this.nomLot);
 			ps.setString(2, this.nomPlante);
-			ps.setInt(3, this.noMembre);
+			ps.setInt(3, this.idMembre);
 			ps.setDate(4, new Date(c.getTimeInMillis()));
 
 			if (ps.executeUpdate() == 0)

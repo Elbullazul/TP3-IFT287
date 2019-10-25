@@ -357,7 +357,7 @@ public class Controller {
 			print("Le membre n'est pas inscrit sur ce lot");
 		else if (!tbl_culture.fetch())
 			print("La plante n'existe pas pour ce lot ou membre");
-		else if (tbl_membre.getId() != tbl_culture.getNoMembre())
+		else if (tbl_membre.getId() != tbl_culture.getIdMembre())
 			print("Seul le membre ayant planté les plantes peut les récolter");
 		else {
 			if (tbl_culture.recolterPlante())
