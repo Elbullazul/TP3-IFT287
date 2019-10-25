@@ -71,7 +71,6 @@ public class TableAttribution extends SQLTable {
 
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 
@@ -85,7 +84,7 @@ public class TableAttribution extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("INSERT INTO Attributions (nomLot, idMembre) VALUES(?, ?)");
+			ps = cnn.prepareStatement("INSERT INTO Attributions (idMembre, nomLot) VALUES(?, ?)");
 			ps.setInt(1, this.idMembre);
 			ps.setString(2, this.nomLot);
 
@@ -123,7 +122,6 @@ public class TableAttribution extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -144,7 +142,6 @@ public class TableAttribution extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -165,7 +162,6 @@ public class TableAttribution extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -198,14 +194,95 @@ public class TableAttribution extends SQLTable {
 		return true;
 	}
 	
+	public Boolean existsLot() {
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE nomLot=?");
+			ps.setString(1, this.nomLot);
+
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				rs.close();
+
+				throw new SQLException("Not found");
+			}
+			rs.close();
+		} catch (SQLException e) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	public ArrayList<TableLot> getLotsMembre() {
+		ArrayList<TableLot> tl = new ArrayList<TableLot>();
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE idMembre=?");
+			ps.setInt(1, this.idMembre);
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				TableLot o = new TableLot();
+
+				o.setNom(rs.getString(2));
+
+				tl.add(o);
+			}
+
+			rs.close();
+		} catch (SQLException e) {
+			return null;
+		}
+
+		return tl;
+	}
+	
+	public ArrayList<TableMembre> getMembresLot() {
+		ArrayList<TableMembre> tl = new ArrayList<TableMembre>();
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE nomLot=?");
+			ps.setString(1, this.nomLot);
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				TableMembre o = new TableMembre();
+
+				o.setId(rs.getInt(1));
+
+				tl.add(o);
+			}
+
+			rs.close();
+		} catch (SQLException e) {
+			return null;
+		}
+
+		return tl;
+	}
+	
 	public Boolean notLast() {
 		PreparedStatement ps;
 
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE idMembre!=?");
+			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE idMembre!=? AND nomLot=?");
 			ps.setInt(1, this.idMembre);
+			ps.setString(2, this.nomLot);
 
 			ResultSet rs = ps.executeQuery();
 

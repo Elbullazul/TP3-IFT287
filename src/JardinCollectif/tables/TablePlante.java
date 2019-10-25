@@ -147,7 +147,7 @@ public class TablePlante extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("SELECT * FROM Plantes WHERE name=?");
+			ps = cnn.prepareStatement("SELECT * FROM Plantes WHERE nom=?");
 			ps.setString(1, this.nom);
 
 			ResultSet rs = ps.executeQuery();

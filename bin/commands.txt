@@ -1,0 +1,65 @@
+JardinOS v0.1 α
+Logiciel de gestion de jardin communautaire
+
+Christian Medel, medc2402 (c) 2019
+
+Commandes disponibles:
+
+inscrireMembre <prenom> <nom> <motDePasse> <noMembre>
+	Cette méthode crée un compte pour un membre.
+
+supprimerMembre <noMembre>
+	Cette méthode supprime le compte du membre, seulement s’il ne possède
+	aucun lot à lui seul.
+
+afficherMembres
+	Affiche l’ensemble des membres et des administrateurs.
+
+ajouterLot <nomLot> <nbMaxMembre>
+	Permet à un administrateur du jardin collectif de créer un nouveau
+	lot.
+
+supprimerLot <nomLot>
+	Supprime le lot, ainsi que toutes les assignations de membres.
+
+rejoindreLot <nomLot> <noMembre>
+	Permet à un membre de demander à rejoindre un lot.
+	
+afficherLots
+	Affiche l’ensemble des lots et des membres qui y sont assignés.
+
+planterPlante <nomPlante> <nomLot> <noMembre> <nbExemplaires> <datePlantation>
+	Permet à un membre de planter un certain nombre d’exemplaires
+	d’une plante dans un lot qui lui est assigné.
+
+recolterPlante <nomPlante> <nomLot> <noMembre>
+	Permet à un membre de recolter une plante prête à la récolte dans un
+	lot qui lui est assigné.
+
+afficherPlantesLot <lot>
+	Affiche l’ensemble des plantes en culture dans un lot, avec la date de
+	plantation et la date de récolte prévue.
+
+ajouterPlante <nomPlante> <tempsDeCulture>
+	Permet à un administrateur de rendre une plante disponible. Le temps
+	de culture est un nombre de jours.
+	
+retirerPlante <nomPlante>
+	Permet à un administrateur de rendre une plante indisponible, seulement
+	si elle n’est en culture dans aucun lot.
+
+afficherPlantes
+	Affiche l’ensemble des plantes et le nombre de plants de chacune en
+	culture.
+	
+(Admin seulement)
+promouvoirAdministrateur <noMembre>
+	Cette méthode promeut un membre au rang d’administrateur.
+
+accepterDemande <nomLot> <noMembre>	
+	Permet à un administrateur d’accepter la demande d’un membre pour
+	joindre un lot.
+
+refuserDemande <nomLot> <noMembre>
+	Permet à un administrateur de refuser la demande d’un membre pour
+	joindre un lot.

@@ -108,7 +108,6 @@ public class TableMembre extends SQLTable {
 
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 

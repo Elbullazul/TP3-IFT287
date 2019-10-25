@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
+import JardinCollectif.Controller;
 import JardinCollectif.JardinCollectif;
 
 public class TableCulture extends SQLTable {
@@ -33,11 +35,18 @@ public class TableCulture extends SQLTable {
 		this.noMembre = idMembre;
 	}
 	
-	public TableCulture(String nomLot, String nomPlante, Integer idMembre, Integer nbExemplaires) {
+	public TableCulture(String nomLot, String nomPlante, Integer idMembre) {
+		this.nomLot = nomLot;
+		this.nomPlante = nomPlante;
+		this.noMembre = idMembre;
+	}
+	
+	public TableCulture(String nomLot, String nomPlante, Integer idMembre, Integer nbExemplaires, Date datePlantation) {
 		this.nomLot = nomLot;
 		this.nomPlante = nomPlante;
 		this.noMembre = idMembre;
 		this.nbExemplaires = nbExemplaires;
+		this.plantee = datePlantation;
 	}
 
 	public String getNomLot() {
@@ -82,7 +91,7 @@ public class TableCulture extends SQLTable {
 
 	// SQL
 	public String toString() {
-		return this.nbExemplaires + " " + this.nomPlante + " plantées le " + this.plantee.toString() + " sur le lot " + this.nomLot; 
+		return this.nbExemplaires + " " + this.nomPlante + "(s) en pousse depuis " + this.plantee.toString() + " dans " + this.nomLot + " par membre " + this.noMembre; 
 	}
 
 	public static ArrayList<TableCulture> fetchAll() {
@@ -110,7 +119,6 @@ public class TableCulture extends SQLTable {
 
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 
@@ -143,7 +151,6 @@ public class TableCulture extends SQLTable {
 
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 
@@ -157,17 +164,19 @@ public class TableCulture extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("INSERT INTO Cultures (nomPlante, nomLot, idMembre, quantitee, plantee) VALUES(?, ?, ?, ?, now()");
+			ps = cnn.prepareStatement("INSERT INTO Cultures (nomPlante, nomLot, idMembre, quantitee, plantee) VALUES(?, ?, ?, ?, ?)");
 			ps.setString(1, this.nomPlante);
 			ps.setString(2, this.nomLot);
 			ps.setInt(3, this.noMembre);
 			ps.setInt(4,  this.nbExemplaires);
+			ps.setDate(5, this.plantee);
 
 			if (ps.executeUpdate() == 0)
 				throw new SQLException("Creation failed");
 
 			cnn.commit();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 
@@ -199,7 +208,6 @@ public class TableCulture extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -220,7 +228,6 @@ public class TableCulture extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -241,7 +248,6 @@ public class TableCulture extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -262,7 +268,6 @@ public class TableCulture extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -276,7 +281,7 @@ public class TableCulture extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("SELECT * FROM Lots WHERE nomLot=? AND nomPlante=? AND idMembre=?");
+			ps = cnn.prepareStatement("SELECT * FROM Cultures WHERE nomLot=? AND nomPlante=? AND idMembre=?");
 			ps.setString(1, this.nomLot);
 			ps.setString(2, this.nomPlante);
 			ps.setInt(3, this.noMembre);
@@ -306,7 +311,7 @@ public class TableCulture extends SQLTable {
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
-			ps = cnn.prepareStatement("SELECT * FROM Lots WHERE nomLot=?");
+			ps = cnn.prepareStatement("SELECT * FROM Cultures WHERE nomLot=?");
 			ps.setString(1, this.nomLot);
 			
 			ResultSet rs = ps.executeQuery();
@@ -318,6 +323,89 @@ public class TableCulture extends SQLTable {
 			}
 
 			rs.close();
+		} catch (SQLException e) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	public Boolean existsPlante() {
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Cultures WHERE nomPlante=?");
+			ps.setString(1, this.nomPlante);
+			
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				rs.close();
+
+				throw new SQLException("Not found");
+			}
+
+			rs.close();
+		} catch (SQLException e) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	public Boolean existsMembre() {
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Cultures WHERE idMembre=?");
+			ps.setInt(1, this.noMembre);
+			
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				rs.close();
+
+				throw new SQLException("Not found");
+			}
+
+			rs.close();
+		} catch (SQLException e) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	public Boolean recolterPlante() {
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+			
+			// charger la durée
+			TablePlante tp = new TablePlante(this.nomPlante);
+			tp.fetch();
+			
+			// Aditionner les jours de maturation
+			Calendar c = Calendar.getInstance();
+	        c.setTime(this.plantee);
+	        c.add(Calendar.DATE, tp.getDuree());
+
+			ps = cnn.prepareStatement("DELETE FROM Cultures WHERE nomLot=? AND nomPlante=? AND idMembre=? AND plantee <= ?");
+			
+			ps.setString(1, this.nomLot);
+			ps.setString(2, this.nomPlante);
+			ps.setInt(3, this.noMembre);
+			ps.setDate(4, new Date(c.getTimeInMillis()));
+
+			if (ps.executeUpdate() == 0)
+				throw new SQLException("Reaping failed");
+
+			cnn.commit();
 		} catch (SQLException e) {
 			return false;
 		}

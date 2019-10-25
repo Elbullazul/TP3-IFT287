@@ -42,7 +42,7 @@ public class TableLot extends SQLTable {
 
 	// SQL
 	public String toString() {
-		return "Lot " + this.nom + ": max_collab: " + this.max_collab.toString(); 
+		return "Lot " + this.nom + ", Nb max. membres: " + this.max_collab.toString(); 
 	}
 	
 	public static ArrayList<TableLot> fetchAll() {
@@ -67,7 +67,6 @@ public class TableLot extends SQLTable {
 
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 
@@ -133,7 +132,6 @@ public class TableLot extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 

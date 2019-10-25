@@ -163,13 +163,14 @@ public class JardinCollectif {
                 	Controller.ajouterPlante(param1, param2);
                 }
                 
-                else if (command.equals("ajouterPlante")) {
+                else if (command.equals("planterPlante")) {
                 	String param1 = readString(tokenizer);
                 	String param2 = readString(tokenizer);
                 	Integer param3 = readInt(tokenizer);
                 	Integer param4 = readInt(tokenizer);
+                	Date param5 = readDate(tokenizer);
                 	
-                	Controller.planterPlante(param1, param2, param3, param4);
+                	Controller.planterPlante(param1, param2, param3, param4, param5);
                 }
                 else if (command.equals("recolterPlante")) {
                 	String param1 = readString(tokenizer);

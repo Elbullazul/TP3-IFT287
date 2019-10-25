@@ -111,7 +111,6 @@ public class TableDemande extends SQLTable {
 
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 
@@ -135,7 +134,6 @@ public class TableDemande extends SQLTable {
 
 			cnn.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			return false;
 		}
 
@@ -253,7 +251,60 @@ public class TableDemande extends SQLTable {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return false;
+		}
+
+		return true;
+	}
+	
+	public Boolean existsMembre() {
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Demandes WHERE idMembre=?");
+			ps.setInt(1, this.idMembre);
+
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				rs.close();
+
+				throw new SQLException("Not found");
+			} else {
+				status= rs.getInt(3);
+
+				rs.close();
+			}
+		} catch (SQLException e) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	public Boolean existsLot() {
+		PreparedStatement ps;
+
+		try {
+			Connection cnn = JardinCollectif.cx.getConnection();
+
+			ps = cnn.prepareStatement("SELECT * FROM Demandes WHERE nomLot=?");
+			ps.setString(1, this.nomLot);
+
+			ResultSet rs = ps.executeQuery();
+
+			if (!rs.next()) {
+				rs.close();
+
+				throw new SQLException("Not found");
+			} else {
+				status= rs.getInt(3);
+
+				rs.close();
+			}
+		} catch (SQLException e) {
 			return false;
 		}
 
