@@ -74,7 +74,7 @@ public class Connexion
     /**
      * Fermeture d'une connexion
      */
-    public void fermer() throws SQLException
+    public void fermer()
     {
         em.close();
         emf.close();
@@ -84,7 +84,7 @@ public class Connexion
     /**
      * Commit
      */
-    public void commit() throws SQLException
+    public void commit()
     {
         em.getTransaction().commit();
     }
@@ -97,7 +97,7 @@ public class Connexion
     /**
      * Rollback
      */
-    public void rollback() throws SQLException
+    public void rollback()
     {
        em.getTransaction().rollback();
     }
