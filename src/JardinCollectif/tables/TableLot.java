@@ -6,48 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.persistence.*;
+
 import JardinCollectif.JardinCollectif;
+import JardinCollectif.objects.Attribution;
+import JardinCollectif.objects.Lot;
 
-public class TableLot extends SQLTable {
-	private String nom;
-	private Integer max_collab;
-
-	public TableLot(String nomLot) {
-		this.nom = nomLot;
-	}
-	
-	public TableLot(String nomLot, Integer maxCollabs) {
-		this.nom = nomLot;
-		this.max_collab = maxCollabs;
-	}
-	
-	public TableLot() {
-	}
-
-	public String getNom() {
-		return nom;
-	}
-
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
-
-	public Integer getMax_collab() {
-		return max_collab;
-	}
-
-	public void setMax_collab(Integer max_collab) {
-		this.max_collab = max_collab;
-	}
-
-	@Override
-	public String toString() {
-		return "Lot " + this.nom + ", Nb max. membres: " + this.max_collab.toString(); 
-	}
-	
-	// SQL
-	public static ArrayList<TableLot> fetchAll() {
-		ArrayList<TableLot> tl = new ArrayList<TableLot>();
+public abstract class TableLot {
+	public static ArrayList<Lot> loadAll() {
+		ArrayList<Lot> tl = new ArrayList<Lot>();
 		PreparedStatement ps;
 
 		try {
@@ -58,7 +25,7 @@ public class TableLot extends SQLTable {
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-				TableLot o = new TableLot();
+				Lot o = new Lot();
 
 				o.setNom(rs.getString(1));
 				o.setMax_collab(rs.getInt(2));
@@ -74,80 +41,27 @@ public class TableLot extends SQLTable {
 		return tl;
 	}
 	
-	@Override
-	public Boolean insert() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("INSERT INTO Lots (nom, max_collab) VALUES(?, ?)");
-			ps.setString(1, this.nom);
-			ps.setInt(2, this.max_collab);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Creation failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Void persist(Lot a) {
+		JardinCollectif.cx.getConnection().persist(a);
 	}
 
-	@Override
-	public Boolean update() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("UPDATE Lots SET max_collab=?) WHERE nom=?");
-			ps.setInt(1, this.max_collab);
-			ps.setString(2, this.nom);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Update failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Boolean remove(Lot a) {
+		if (a != null)
+        {
+            JardinCollectif.cx.getConnection().remove(a);
+            return true;
+        }
+        return false;
 	}
 
-	@Override
-	public Boolean destroy() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Lots WHERE nom=?");
-			ps.setString(1, this.nom);
-			
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public Boolean fetch() {
+	public static Lot load(String pk_lot) {
 		PreparedStatement ps;
 
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
 			ps = cnn.prepareStatement("SELECT * FROM Lots WHERE nom=?");
-			ps.setString(1, this.nom);
+			ps.setString(1, pk_lot);
 
 			ResultSet rs = ps.executeQuery();
 

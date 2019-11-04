@@ -7,80 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.persistence.*;
+
 import JardinCollectif.JardinCollectif;
+import JardinCollectif.objects.Attribution;
+import JardinCollectif.objects.Demande;
 
-public class TableDemande extends SQLTable {
-	private Integer idMembre;
-	private String nomLot;
-	private Integer status;
-	
-	public static Integer STATUS_PENDING = -1;
-	public static Integer STATUS_DENIED = 0;
-	public static Integer STATUS_APPROVED = 1;
-	
-	public TableDemande() {
-	}
-	
-	public TableDemande(Integer idMembre) {
-		this.idMembre = idMembre;
-	}
-	
-	public TableDemande(String nomLot) {
-		this.nomLot = nomLot;
-	}
-	
-	public TableDemande(String nomLot, Integer idMembre) {
-		this.nomLot = nomLot;
-		this.idMembre = idMembre;
-		this.status = STATUS_PENDING;
-	}
-
-	public Integer getIdMembre() {
-		return idMembre;
-	}
-
-	public void setIdMembre(Integer idMembre) {
-		this.idMembre = idMembre;
-	}
-
-	public String getNomLot() {
-		return nomLot;
-	}
-
-	public void setNomLot(String nomLot) {
-		this.nomLot = nomLot;
-	}
-
-	public Integer getStatus() {
-		return status;
-	}
-
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-
-	@Override
-	public String toString() {
-		String s = "Demande soumise par: " + this.idMembre.toString() + " pour le lot " + this.nomLot + " Status: ";
-		
-		switch (this.status) {
-		case -1:
-			s += "Pending";
-			break;
-		case 0:
-			s += "denied";
-			break;
-		case 1:
-			s += "approved";
-			break;
-		}
-		
-		return s;
-	}
-
-	// SQL
-	public static ArrayList<TableDemande> fetchAll() {
-		ArrayList<TableDemande> tl = new ArrayList<TableDemande>();
+public abstract class TableDemande {
+	public static ArrayList<Demande> loadAll() {
+		ArrayList<Demande> tl = new ArrayList<Demande>();
 		PreparedStatement ps;
 
 		try {
@@ -92,7 +27,7 @@ public class TableDemande extends SQLTable {
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-				TableDemande o = new TableDemande();
+				Demande o = new Demande();
 
 				o.setIdMembre(rs.getInt(1));
 				o.setNomLot(rs.getString(2));
@@ -109,127 +44,29 @@ public class TableDemande extends SQLTable {
 		return tl;
 	}
 	
-	@Override
-	public Boolean insert() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("INSERT INTO Demandes (idMembre, nomLot, status) VALUES(?, ?, ?)");
-			ps.setInt(1, this.idMembre);
-			ps.setString(2, this.nomLot);
-			ps.setInt(3,  this.status);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Creation failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static void persist(Demande a) {
+		JardinCollectif.cx.getConnection().persist(a);
 	}
 
-	@Override
-	public Boolean update() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("UPDATE Demandes SET status=? WHERE idMembre=? AND nomLot=? AND status=?");
-			ps.setInt(1, this.status);
-			ps.setInt(2, this.idMembre);
-			ps.setString(3, this.nomLot);
-			ps.setInt(4,  STATUS_PENDING);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Update failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public Boolean destroy() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Demandes WHERE idMembre=? AND nomLot=? AND status=?");
-			ps.setInt(1, this.idMembre);
-			ps.setString(2, this.nomLot);
-			ps.setInt(3, this.status);
-			
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Boolean remove(Demande a) {
+		if (a != null)
+        {
+            JardinCollectif.cx.getConnection().remove(a);
+            return true;
+        }
+        return false;
 	}
 	
-	public Boolean destroyLot() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Demandes WHERE nomLot=?");
-			ps.setString(1, this.nomLot);
-			
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
-	}
-	
-	public Boolean destroyMembre() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Demandes WHERE idMembre=?");
-			ps.setInt(1, this.idMembre);
-			
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public Boolean fetch() {
+	public static Demande load(Integer pk_membre, String pk_lot, Integer status) {
 		PreparedStatement ps;
 
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
 			ps = cnn.prepareStatement("SELECT idMembre, nomLot, status FROM Demandes WHERE idMembre=? AND nomLot=? AND status=?");
-			ps.setInt(1, this.idMembre);
-			ps.setString(2, this.nomLot);
-			ps.setInt(3, STATUS_PENDING);
+			ps.setInt(1, pk_membre);
+			ps.setString(2, pk_lot);
+			ps.setInt(3, status);
 
 			ResultSet rs = ps.executeQuery();
 
@@ -249,14 +86,14 @@ public class TableDemande extends SQLTable {
 		return true;
 	}
 	
-	public Boolean existsMembre() {
+	public static Boolean existsMembre(Integer pk_membre) {
 		PreparedStatement ps;
 
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
 			ps = cnn.prepareStatement("SELECT * FROM Demandes WHERE idMembre=?");
-			ps.setInt(1, this.idMembre);
+			ps.setInt(1, pk_membre);
 
 			ResultSet rs = ps.executeQuery();
 
@@ -265,7 +102,7 @@ public class TableDemande extends SQLTable {
 
 				throw new SQLException("Not found");
 			} else {
-				status= rs.getInt(3);
+				status = rs.getInt(3);
 
 				rs.close();
 			}
@@ -276,14 +113,14 @@ public class TableDemande extends SQLTable {
 		return true;
 	}
 	
-	public Boolean existsLot() {
+	public static Boolean existsLot(String pk_lot) {
 		PreparedStatement ps;
 
 		try {
 			Connection cnn = JardinCollectif.cx.getConnection();
 
 			ps = cnn.prepareStatement("SELECT * FROM Demandes WHERE nomLot=?");
-			ps.setString(1, this.nomLot);
+			ps.setString(1, pk_lot);
 
 			ResultSet rs = ps.executeQuery();
 
@@ -292,7 +129,7 @@ public class TableDemande extends SQLTable {
 
 				throw new SQLException("Not found");
 			} else {
-				status= rs.getInt(3);
+				status = rs.getInt(3);
 
 				rs.close();
 			}

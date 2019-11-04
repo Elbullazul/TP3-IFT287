@@ -1,302 +1,76 @@
 package JardinCollectif.tables;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import JardinCollectif.JardinCollectif;
+import JardinCollectif.objects.Attribution;
 
-public class TableAttribution extends SQLTable {
-	private Integer idMembre;
-	private String nomLot;
+import javax.persistence.*;
 
-	public TableAttribution() {
+public abstract class TableAttribution {
+	public static List<Attribution> loadAll() {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a", Attribution.class);
+		
+		return q.getResultList();
 	}
 
-	public TableAttribution(String nomLot) {
-		this.nomLot = nomLot;
+	public static void persist(Attribution a) {
+		JardinCollectif.cx.getConnection().persist(a);
+	}
+
+	public static Boolean remove(Attribution a) {
+		if (a != null)
+        {
+            JardinCollectif.cx.getConnection().remove(a);
+            return true;
+        }
+        return false;
 	}
 	
-	public TableAttribution(Integer noMembre) {
-		this.idMembre = noMembre;
-	}
-	
-	public TableAttribution(String nomLot, Integer noMembre) {
-		this.nomLot = nomLot;
-		this.idMembre = noMembre;
-	}
-
-	public Integer getIdMembre() {
-		return idMembre;
-	}
-
-	public void setIdMembre(Integer idMembre) {
-		this.idMembre = idMembre;
-	}
-
-	public String getNomLot() {
-		return nomLot;
-	}
-
-	public void setNomLot(String nomLot) {
-		this.nomLot = nomLot;
-	}
-
-	@Override
-	public String toString() {
-		return "Membre " + this.idMembre.toString() + " collabore sur le lot " + this.nomLot; 
-	}
-
-	// SQL
-	public static ArrayList<TableAttribution> fetchAll() {
-		ArrayList<TableAttribution> tl = new ArrayList<TableAttribution>();
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Attributions");
-
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				TableAttribution o = new TableAttribution();
-
-				o.setIdMembre(rs.getInt(1));
-				o.setNomLot(rs.getString(2));
-
-				tl.add(o);
-			}
-
-			rs.close();
-		} catch (SQLException e) {
+	public static Attribution load(String pk_lot, Integer pk_membre) {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.idMembre = :idMembre AND nomLot = :nomLot", Attribution.class);
+		q.setParameter("idMembre", pk_membre);
+		q.setParameter("nomLot", pk_lot);
+		
+		List<Attribution> a = q.getResultList();
+		
+		if (!a.isEmpty())
+			return a.get(0);
+		else
 			return null;
-		}
-
-		return tl;
-	}
-
-	@Override
-	public Boolean insert() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("INSERT INTO Attributions (idMembre, nomLot) VALUES(?, ?)");
-			ps.setInt(1, this.idMembre);
-			ps.setString(2, this.nomLot);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Creation failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public Boolean update() {
-		// TODO: pas implémenté car pas utilisé dans le cadre du devoir (renommer lot)
-
-		return false;
-	}
-
-	@Override
-	public Boolean destroy() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Attributions WHERE nomLot=? AND idMembre=?");
-			ps.setString(1, this.nomLot);
-			ps.setInt(2, this.idMembre);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
 	}
 	
-	public Boolean destroyMembre() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Attributions WHERE idMembre=?");
-			ps.setInt(1, this.idMembre);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Boolean existsLot(String pk_lot) {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.nomLot = :nomLot", Attribution.class);
+		q.setParameter("nomLot", pk_lot);
+		
+		return !q.getResultList().isEmpty();
 	}
 	
-	public Boolean destroyLot() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("DELETE FROM Attributions WHERE nomLot=?");
-			ps.setString(1, this.nomLot);
-
-			if (ps.executeUpdate() == 0)
-				throw new SQLException("Deletion failed");
-
-			cnn.commit();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public Boolean fetch() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE nomLot=? AND idMembre=?");
-			ps.setString(1, this.nomLot);
-			ps.setInt(2, this.idMembre);
-
-			ResultSet rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				rs.close();
-
-				throw new SQLException("Not found");
-			}
-			rs.close();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Boolean existsMembre(Integer pk_membre) {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.idMembre = :idMembre", Attribution.class);
+		q.setParameter("idMembre", pk_membre);
+		
+		return !q.getResultList().isEmpty();
 	}
 	
-	public Boolean existsLot() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE nomLot=?");
-			ps.setString(1, this.nomLot);
-
-			ResultSet rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				rs.close();
-
-				throw new SQLException("Not found");
-			}
-			rs.close();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Boolean isNotLast(String pk_lot, Integer pk_membre) {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.idMembre != :idMembre AND m.nomLot = :nomLot", Attribution.class);
+		q.setParameter("nomLot", pk_lot);
+		
+		return !q.getResultList().isEmpty();
 	}
 	
-	public ArrayList<TableLot> getLotsMembre() {
-		ArrayList<TableLot> tl = new ArrayList<TableLot>();
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE idMembre=?");
-			ps.setInt(1, this.idMembre);
-
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				TableLot o = new TableLot();
-
-				o.setNom(rs.getString(2));
-
-				tl.add(o);
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			return null;
-		}
-
-		return tl;
-	}
-	
-	public ArrayList<TableMembre> getMembresLot() {
-		ArrayList<TableMembre> tl = new ArrayList<TableMembre>();
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE nomLot=?");
-			ps.setString(1, this.nomLot);
-
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				TableMembre o = new TableMembre();
-
-				o.setId(rs.getInt(1));
-
-				tl.add(o);
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			return null;
-		}
-
-		return tl;
-	}
-	
-	public Boolean notLast() {
-		PreparedStatement ps;
-
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Attributions WHERE idMembre!=? AND nomLot=?");
-			ps.setInt(1, this.idMembre);
-			ps.setString(2, this.nomLot);
-
-			ResultSet rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				rs.close();
-
-				throw new SQLException("Not found");
-			}
-			rs.close();
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+	public static Integer getLotCollaboratorQty(String pk_lot) {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.nomLot = :nomLot", Attribution.class);
+		q.setParameter("nomLot", pk_lot);
+		
+		return q.getResultList().size();
 	}
 }

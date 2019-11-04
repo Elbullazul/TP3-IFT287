@@ -76,6 +76,8 @@ public class JardinCollectif {
     {
         try
         {
+        	Controller.newCycle = true;	// format string        	
+        	
             System.out.print(transaction);
             // Decoupage de la transaction en mots
             StringTokenizer tokenizer = new StringTokenizer(transaction, " ");
