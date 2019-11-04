@@ -1,45 +1,18 @@
 package JardinCollectif.tables;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
 
 import JardinCollectif.JardinCollectif;
-import JardinCollectif.objects.Attribution;
 import JardinCollectif.objects.Plante;
 
 public abstract class TablePlante {
-	public static ArrayList<Plante> loadAll() {
-		ArrayList<Plante> tl = new ArrayList<Plante>();
-		PreparedStatement ps;
+	public static List<Plante> loadAll() {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Plante> q = mg.createQuery("SELECT p FROM Plante p", Plante.class);
 
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Plantes ORDER BY nom");
-
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				Plante o = new Plante();
-
-				o.setNom(rs.getString(1));
-				o.setDuree(rs.getInt(2));
-
-				tl.add(o);
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		return tl;
+		return q.getResultList();
 	}
 	
 	public static void persist(Plante a) {
@@ -56,29 +29,15 @@ public abstract class TablePlante {
 	}
 
 	public static Plante load(String pk_plante) {
-		PreparedStatement ps;
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Plante> q = mg.createQuery("SELECT p FROM Plante p WHERE p.nomPlante = :nomPlante", Plante.class);
+		q.setParameter("nomPlante", pk_plante);
 
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
+		List<Plante> a = q.getResultList();
 
-			ps = cnn.prepareStatement("SELECT * FROM Plantes WHERE nom=?");
-			ps.setString(1, pk_plante);
-
-			ResultSet rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				rs.close();
-
-				throw new SQLException("Not found");
-			} else {
-				duree = rs.getInt(2);
-
-				rs.close();
-			}
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+		if (!a.isEmpty())
+			return a.get(0);
+		else
+			return null;
 	}
 }

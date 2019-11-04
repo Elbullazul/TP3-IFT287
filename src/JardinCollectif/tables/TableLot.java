@@ -1,83 +1,42 @@
 package JardinCollectif.tables;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
 
 import JardinCollectif.JardinCollectif;
-import JardinCollectif.objects.Attribution;
 import JardinCollectif.objects.Lot;
 
 public abstract class TableLot {
-	public static ArrayList<Lot> loadAll() {
-		ArrayList<Lot> tl = new ArrayList<Lot>();
-		PreparedStatement ps;
+	public static List<Lot> loadAll() {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Lot> q = mg.createQuery("SELECT l FROM Lot l", Lot.class);
 
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Lots ORDER BY nom");
-
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				Lot o = new Lot();
-
-				o.setNom(rs.getString(1));
-				o.setMax_collab(rs.getInt(2));
-
-				tl.add(o);
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			return null;
-		}
-
-		return tl;
+		return q.getResultList();
 	}
-	
-	public static Void persist(Lot a) {
+
+	public static void persist(Lot a) {
 		JardinCollectif.cx.getConnection().persist(a);
 	}
 
 	public static Boolean remove(Lot a) {
-		if (a != null)
-        {
-            JardinCollectif.cx.getConnection().remove(a);
-            return true;
-        }
-        return false;
+		if (a != null) {
+			JardinCollectif.cx.getConnection().remove(a);
+			return true;
+		}
+		return false;
 	}
 
 	public static Lot load(String pk_lot) {
-		PreparedStatement ps;
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Lot> q = mg.createQuery("SELECT l FROM Lot l WHERE l.nomLot = :nomLot", Lot.class);
+		q.setParameter("nomLot", pk_lot);
 
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
+		List<Lot> a = q.getResultList();
 
-			ps = cnn.prepareStatement("SELECT * FROM Lots WHERE nom=?");
-			ps.setString(1, pk_lot);
-
-			ResultSet rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				rs.close();
-
-				throw new SQLException("Not found");
-			} else {
-				max_collab = rs.getInt(2);
-
-				rs.close();
-			}
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+		if (!a.isEmpty())
+			return a.get(0);
+		else
+			return null;
 	}
 }

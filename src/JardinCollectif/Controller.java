@@ -1,11 +1,8 @@
 package JardinCollectif;
 
-import java.sql.Connection;
-
 import JardinCollectif.tables.*;
 import JardinCollectif.objects.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +16,7 @@ public class Controller {
 
 	public static void print(Object o) {
 		if (newCycle) {
-			print("");
+			System.out.println();
 			newCycle = false;
 		}
 		System.out.println(o.toString());

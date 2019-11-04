@@ -1,47 +1,18 @@
 package JardinCollectif.tables;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
 
 import JardinCollectif.JardinCollectif;
-import JardinCollectif.objects.Attribution;
 import JardinCollectif.objects.Membre;
 
 public abstract class TableMembre {
-	public static ArrayList<Membre> loadAll() {
-		ArrayList<Membre> tl = new ArrayList<Membre>();
-		PreparedStatement ps;
+	public static List<Membre> loadAll() {
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Membre> q = mg.createQuery("SELECT m FROM Membre m", Membre.class);
 
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
-
-			ps = cnn.prepareStatement("SELECT * FROM Membres ORDER BY id");
-
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				Membre o = new Membre();
-
-				o.setId(rs.getInt(1));
-				o.setPrenom(rs.getString(2));
-				o.setNom(rs.getString(3));
-				o.setPassword(rs.getString(4));
-				o.setIsAdmin(rs.getBoolean(5));
-
-				tl.add(o);
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			return null;
-		}
-
-		return tl;
+		return q.getResultList();
 	}
 
 	public static void persist(Membre a) {
@@ -58,32 +29,15 @@ public abstract class TableMembre {
 	}
 
 	public static Membre load(Integer pk_membre) {
-		PreparedStatement ps;
+		EntityManager mg = JardinCollectif.cx.getConnection();
+		TypedQuery<Membre> q = mg.createQuery("SELECT m FROM Membre m WHERE m.idMembre = :idMembre", Membre.class);
+		q.setParameter("idMembre", pk_membre);
 
-		try {
-			Connection cnn = JardinCollectif.cx.getConnection();
+		List<Membre> a = q.getResultList();
 
-			ps = cnn.prepareStatement("SELECT * FROM Membres WHERE id = ?");
-			ps.setInt(1, pk_membre);
-
-			ResultSet rs = ps.executeQuery();
-
-			if (!rs.next()) {
-				rs.close();
-
-				throw new SQLException("Not found");
-			} else {
-				prenom = rs.getString(2);
-				nom = rs.getString(3);
-				password = rs.getString(4);
-				isAdmin = rs.getBoolean(5);
-
-				rs.close();
-			}
-		} catch (SQLException e) {
-			return false;
-		}
-
-		return true;
+		if (!a.isEmpty())
+			return a.get(0);
+		else
+			return null;
 	}
 }

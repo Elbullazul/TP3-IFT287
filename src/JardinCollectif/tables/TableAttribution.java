@@ -30,7 +30,7 @@ public abstract class TableAttribution {
 	
 	public static Attribution load(String pk_lot, Integer pk_membre) {
 		EntityManager mg = JardinCollectif.cx.getConnection();
-		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.idMembre = :idMembre AND nomLot = :nomLot", Attribution.class);
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE a.idMembre = :idMembre AND a.nomLot = :nomLot", Attribution.class);
 		q.setParameter("idMembre", pk_membre);
 		q.setParameter("nomLot", pk_lot);
 		
@@ -44,7 +44,7 @@ public abstract class TableAttribution {
 	
 	public static Boolean existsLot(String pk_lot) {
 		EntityManager mg = JardinCollectif.cx.getConnection();
-		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.nomLot = :nomLot", Attribution.class);
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE a.nomLot = :nomLot", Attribution.class);
 		q.setParameter("nomLot", pk_lot);
 		
 		return !q.getResultList().isEmpty();
@@ -52,7 +52,7 @@ public abstract class TableAttribution {
 	
 	public static Boolean existsMembre(Integer pk_membre) {
 		EntityManager mg = JardinCollectif.cx.getConnection();
-		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.idMembre = :idMembre", Attribution.class);
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE a.idMembre = :idMembre", Attribution.class);
 		q.setParameter("idMembre", pk_membre);
 		
 		return !q.getResultList().isEmpty();
@@ -60,7 +60,7 @@ public abstract class TableAttribution {
 	
 	public static Boolean isNotLast(String pk_lot, Integer pk_membre) {
 		EntityManager mg = JardinCollectif.cx.getConnection();
-		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.idMembre != :idMembre AND m.nomLot = :nomLot", Attribution.class);
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE a.idMembre != :idMembre AND a.nomLot = :nomLot", Attribution.class);
 		q.setParameter("nomLot", pk_lot);
 		
 		return !q.getResultList().isEmpty();
@@ -68,7 +68,7 @@ public abstract class TableAttribution {
 	
 	public static Integer getLotCollaboratorQty(String pk_lot) {
 		EntityManager mg = JardinCollectif.cx.getConnection();
-		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE m.nomLot = :nomLot", Attribution.class);
+		TypedQuery<Attribution> q = mg.createQuery("SELECT a FROM Attribution a WHERE a.nomLot = :nomLot", Attribution.class);
 		q.setParameter("nomLot", pk_lot);
 		
 		return q.getResultList().size();
