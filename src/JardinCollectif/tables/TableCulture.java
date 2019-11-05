@@ -60,7 +60,7 @@ public abstract class TableCulture {
 		return !q.getResultList().isEmpty();
 	}
 
-	public static Boolean existsMembre(Integer pk_membre) {
+	public static Boolean exists(Integer pk_membre) {
 		EntityManager mg = JardinCollectif.cx.getConnection();
 		TypedQuery<Culture> q = mg.createQuery("SELECT c FROM Culture c WHERE c.idMembre = :idMembre", Culture.class);
 		q.setParameter("idMembre", pk_membre);

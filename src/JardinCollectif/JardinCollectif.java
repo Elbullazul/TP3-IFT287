@@ -76,7 +76,7 @@ public class JardinCollectif {
     {
         try
         {
-        	Controller.newCycle = true;	// format string        	
+        	Util.newCycle = true;	// format string        	
         	
             System.out.print(transaction);
             // Decoupage de la transaction en mots
@@ -84,21 +84,8 @@ public class JardinCollectif {
             if (tokenizer.hasMoreTokens())
             {
                 String command = tokenizer.nextToken();
-                // Vous devez remplacer la chaine "commande1" et "commande2" par
-                // les commandes de votre programme. Vous pouvez ajouter autant
-                // de else if que necessaire. Vous n'avez pas a traiter la
-                // commande "quitter".
-                if (command.equals("commande1"))
-                {
-                    // Lecture des parametres
-                    String param1 = readString(tokenizer);
-                    Date param2 = readDate(tokenizer);
-                    int param3 = readInt(tokenizer);
-                    
-                    // Appel de la methode des gestionnaires qui traite la transaction specifique
-                }
                 // membres
-                else if (command.equals("inscrireMembre"))
+                if (command.equals("inscrireMembre"))
                 {
                     // Lire les parametres ici et appeler la bonne methode
                     // de traitement pour la transaction
