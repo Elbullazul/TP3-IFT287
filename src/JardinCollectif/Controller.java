@@ -12,7 +12,10 @@ public class Controller {
 	 * Membres
 	 */
 	public static void inscrireMembre(String prenom, String nom, String password, Integer noMembre) {
-		MembreController.creer(prenom, nom, password, noMembre);
+		if (password.length() < 8)
+			Util.print("Le mot de passe doit contenir 8 ou plus caractères");
+		else
+			MembreController.creer(prenom, nom, password, noMembre);
 	}
 
 	public static void supprimerMembre(Integer noMembre) {
